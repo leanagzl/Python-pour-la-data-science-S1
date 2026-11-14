@@ -82,4 +82,4 @@ def graphique_insee(df):
         ax.set_xlabel(titre)
         ax.set_ylabel("Nombre de circonscriptions")
     fig.tight_layout()
-    return fig
+    return fig1
