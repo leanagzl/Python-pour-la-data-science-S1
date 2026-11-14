@@ -26,9 +26,10 @@ HEADERS = {"User-Agent": "Python data science project"}
 # Téléchargement et sauvegarde des fichiers bruts de l'INSEE
 
 
-def gel_donnees_insee():
+def gel_donnees_insee(forcer=False):
     """
     Télécharge les deux fichiers Excel de l'INSEE et les sauvegarde dans data_brut.
+    Un fichier déjà présent n'est pas retéléchargé, sauf si forcer=True.
     """
     dossier_brut = DATA_DIR / "data_brut"
     dossier_brut.mkdir(parents=True, exist_ok=True)
@@ -39,29 +40,40 @@ def gel_donnees_insee():
     }
 
     for nom_fichier, url in fichiers.items():
+        output_path = dossier_brut / nom_fichier
+        if output_path.exists() and not forcer:
+            print(f"{nom_fichier} déjà présent dans data_brut : pas de téléchargement.")
+            continue
         response = requests.get(url, headers=HEADERS, timeout=60)
         response.raise_for_status()
-        output_path = dossier_brut / nom_fichier
         output_path.write_bytes(response.content)
-
+        print(f"{nom_fichier} téléchargé et gelé dans data_brut.")
     print("Les fichiers INSEE ont été téléchargés et gelés dans data_brut.")
 
 
 # Téléchargement et sauvegarde de la base brute des députés
 
 
-def gel_donnees_deputes(nom_fichier="deputes_actifs.csv"):
+def gel_donnees_deputes(nom_fichier="deputes_actifs.csv", forcer=False):
     """
     Récupère via l'API data.gouv.fr le CSV le plus récent des députés actifs
-    et le sauvegarde dans data_brut.
+    et le sauvegarde dans data_brut. Un fichier déjà présent n'est pas
+    retéléchargé (la liste change chaque jour), sauf si forcer=True.
 
     Paramètres
     ----------
     nom_fichier : str, optionnel
         Nom du fichier CSV de sortie.
+    forcer : bool, optionnel
+        Si True, retélécharge même si le fichier existe.
     """
     dossier_brut = DATA_DIR / "data_brut"
     dossier_brut.mkdir(parents=True, exist_ok=True)
+    output_path = dossier_brut / nom_fichier
+
+    if output_path.exists() and not forcer:
+        print(f"{nom_fichier} déjà présent dans data_brut : pas de téléchargement.")
+        return
 
     response = requests.get(URL_API_DEPUTES, headers=HEADERS, timeout=30)
     response.raise_for_status()
@@ -74,9 +86,7 @@ def gel_donnees_deputes(nom_fichier="deputes_actifs.csv"):
     resp_csv = requests.get(derniere_csv["url"], headers=HEADERS, timeout=60)
     resp_csv.raise_for_status()
 
-    output_path = dossier_brut / nom_fichier
     output_path.write_bytes(resp_csv.content)
-
     print("La base des députés a été téléchargée et gelée dans data_brut.")
 
 

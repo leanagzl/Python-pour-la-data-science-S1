@@ -2,7 +2,7 @@
 
 Projet réalisé par Leana Ghezali et Selima Skhiri
 
-**Problématique :** 
+**Problématique :** Les députés représentent-ils bien leurs circonscriptions ? Nous comparons l'âge, le genre, la profession et le groupe politique de chaque député aux caractéristiques socio-économiques de sa circonscription.
 
 ## Données
 
