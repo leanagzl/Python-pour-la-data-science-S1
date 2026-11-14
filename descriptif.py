@@ -67,15 +67,23 @@ def graphique_deputes(df):
     fig.tight_layout()
     return fig
 
+def taux_chomage(df):
+    """
+    Taux de chômage (%) = chômeurs / population active.
+    Dans le fichier INSEE, 'actcho' et 'actemp' sont des parts de la population
+    totale : leur rapport donne le taux de chômage usuel.
+    """
+    return df["actcho"] / (df["actemp"] + df["actcho"]) * 100
 
 def graphique_insee(df):
     """Dispersion de trois indicateurs INSEE entre circonscriptions."""
+    donnees = df[df["indicateur_present"]].copy()
+    donnees["taux_chomage"] = taux_chomage(donnees)
     variables = {
-        "actcho": "Part de la population au chômage (%)",
+        "taux_chomage": "Taux de chômage (%)",
         "nivvie_median_diff": "Niveau de vie médian (€)",
         "age_moyen": "Âge moyen de la population (ans)",
     }
-    donnees = df[df["indicateur_present"]]
     fig, axes = plt.subplots(1, 3, figsize=(14, 4))
     for ax, (col, titre) in zip(axes, variables.items()):
         ax.hist(donnees[col].dropna(), bins=20)
