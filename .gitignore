@@ -9,3 +9,4 @@ data/
 # Fichiers de travail temporaires
 diagnostic.py
 .ipynb_checkpoints/
+test_descriptif.py
