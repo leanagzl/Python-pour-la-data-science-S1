@@ -137,7 +137,7 @@ def nettoyer_insee_indic(df):
 
     # La 1re colonne contient le code de la circonscription ('0101', '2A01', '97101')
     col_code = df_clean.columns[0]
-    df_clean["code_circo"] = df_clean[col_code].str.strip().str.zfill(4)
+    df_clean["code_circo"] = df_clean[col_code].str.strip().str.upper().str.zfill(5)
 
     # Conversion des colonnes statistiques en nombres (les 's' et 'nd' deviennent NaN)
     colonnes_texte = {col_code, df_clean.columns[1], "code_circo"}
@@ -179,7 +179,8 @@ def nettoyer_insee_compo(df):
 
 def nettoyer_deputes(df):
     """
-    Nettoie la base des députés actifs et crée la clé 'code_circo' au format INSEE.
+    Nettoie la base des députés actifs et crée la clé 'code_circo' au format INSEE
+    (5 caractères, ex. '75018' ou '97101').
 
     Paramètres
     ----------
@@ -197,8 +198,19 @@ def nettoyer_deputes(df):
     # Datan écrit les départements sur 3 chiffres ('001'), l'INSEE sur 2 ('01')
     dep = df_clean["departementCode"].str.strip()
     dep = dep.apply(lambda x: x[1:] if len(x) == 3 and x.startswith("0") else x)
-    circ = df_clean["circo"].str.strip().str.zfill(2)
-    df_clean["code_circo"] = dep + circ
+    circ = df_clean["circo"].str.strip()
+
+    # Format INSEE sur 5 caractères : département (2) + circo (3) en métropole,
+    # département (3) + circo (2) en outre-mer ('971' + '01')
+    df_clean["code_circo"] = [
+        d + c.zfill(2 if len(d) == 3 else 3) for d, c in zip(dep, circ)
+    ]
+
+    # Corse : l'INSEE écrit '2A' et '2B' en majuscules
+    df_clean["code_circo"] = df_clean["code_circo"].str.upper()
+
+    # Saint-Barthélemy ('97701') est regroupée avec Saint-Martin ('97801') par l'INSEE
+    df_clean["code_circo"] = df_clean["code_circo"].replace({"97701": "97801"})
 
     if "age" in df_clean.columns:
         df_clean["age"] = pd.to_numeric(df_clean["age"], errors="coerce")
@@ -208,7 +220,6 @@ def nettoyer_deputes(df):
             df_clean[col] = pd.to_datetime(df_clean[col], errors="coerce")
 
     return df_clean
-
 
 # Construction et sauvegarde des bases nettoyées dans data_clean
 
