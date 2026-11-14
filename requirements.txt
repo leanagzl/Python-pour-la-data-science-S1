@@ -3,3 +3,4 @@ requests
 openpyxl
 pyarrow
 matplotlib
+ipykernel
