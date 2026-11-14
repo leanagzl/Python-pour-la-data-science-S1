@@ -4,7 +4,7 @@ __pycache__/
 *.pyc
 
 # Données : régénérables avec lancer_extraction.py et jointures.py
-data/
+data/data_clean/
 
 # Fichiers de travail temporaires
 diagnostic.py
