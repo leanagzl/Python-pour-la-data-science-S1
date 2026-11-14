@@ -83,7 +83,7 @@ def gel_donnees_deputes(nom_fichier="deputes_actifs.csv"):
 # Lecture d'un fichier Excel INSEE
 
 
-def lire_excel_insee(chemin_fichier):
+def lire_excel_insee(chemin_fichier, onglet_donnees, ligne_entete, onglet_doc):
     """
     Lit l'onglet de données et l'onglet de documentation d'un fichier Excel INSEE.
 
@@ -91,25 +91,26 @@ def lire_excel_insee(chemin_fichier):
     ----------
     chemin_fichier : Path
         Chemin vers le fichier Excel INSEE.
+    onglet_donnees : int
+        Indice de l'onglet contenant les données.
+    ligne_entete : int
+        Indice de la ligne contenant les noms de colonnes dans cet onglet.
+    onglet_doc : int
+        Indice de l'onglet contenant la documentation (dictionnaire des variables).
 
     Retour
     ------
     df_donnees : pandas.DataFrame
         Tableau principal des données (colonnes lues en texte).
     df_doc : pandas.DataFrame
-        Onglet de présentation et dictionnaire des variables.
+        Onglet de documentation.
     """
-    # L'onglet 0 contient la documentation, l'onglet 1 contient les données
-    df_doc = pd.read_excel(chemin_fichier, sheet_name=0, dtype=str).dropna(how="all")
-
-    # Repère la ligne des noms de colonnes dans l'onglet 1 (première ligne complète)
-    aperçu = pd.read_excel(chemin_fichier, sheet_name=1, header=None, dtype=str)
-    ligne_entete = int(aperçu.dropna(thresh=5).index[0])
-
+    df_doc = pd.read_excel(
+        chemin_fichier, sheet_name=onglet_doc, dtype=str
+    ).dropna(how="all")
     df_donnees = pd.read_excel(
-        chemin_fichier, sheet_name=1, header=ligne_entete, dtype=str
+        chemin_fichier, sheet_name=onglet_donnees, header=ligne_entete, dtype=str
     )
-
     return df_donnees, df_doc
 
 
@@ -221,12 +222,21 @@ def gel_bases_clean():
     dossier_clean = DATA_DIR / "data_clean"
     dossier_clean.mkdir(parents=True, exist_ok=True)
 
-    # Lecture des fichiers bruts
+       # Lecture des fichiers bruts
     deputes_brut = pd.read_csv(dossier_brut / "deputes_actifs.csv", dtype=str)
     indic_brut, dico_insee = lire_excel_insee(
-        dossier_brut / "indic-stat-circonscriptions-legislatives-2022.xlsx"
+        dossier_brut / "indic-stat-circonscriptions-legislatives-2022.xlsx",
+        onglet_donnees=0,
+        ligne_entete=7,
+        onglet_doc=1,
     )
-    compo_brut, _ = lire_excel_insee(dossier_brut / "circo_composition.xlsx")
+    compo_brut, _ = lire_excel_insee(
+        dossier_brut / "circo_composition.xlsx",
+        onglet_donnees=1,
+        ligne_entete=0,
+        onglet_doc=0,
+    )
+
 
     # Nettoyage séparé
     deputes = nettoyer_deputes(deputes_brut)
