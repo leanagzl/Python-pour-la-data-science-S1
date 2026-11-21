@@ -101,3 +101,40 @@ def comparer_genre(d):
     tableau = pd.DataFrame(lignes).set_index("indicateur")
     tableau.attrs["effectifs"] = (len(femmes), len(hommes))
     return tableau
+INDICATEURS_INTRA = [
+    "act_cad",
+    "actdip_BAC5",
+    "act_ouv",
+    "nivvie_median_diff",
+    "pop_pole_aav",
+]
+
+
+def comparer_genre_intra_groupe(d, effectif_min=20):
+    """
+    Compare, en métropole, les circonscriptions des députées et des députés
+    après avoir retiré la moyenne de leur groupe politique : l'écart mesuré
+    est donc interne au groupe. Seuls les groupes d'au moins 'effectif_min'
+    députés métropolitains sont gardés (moyenne de groupe fragile sinon).
+    """
+    metro = d[~d["outre_mer"]].copy()
+    tailles = metro["groupeAbrev"].value_counts()
+    garde = tailles[tailles >= effectif_min].index
+    metro = metro[metro["groupeAbrev"].isin(garde)]
+
+    lignes = []
+    for col in INDICATEURS_INTRA:
+        valeurs = metro[col] - metro.groupby("groupeAbrev")[col].transform("mean")
+        f = valeurs[metro["genre"] == "Femme"].dropna()
+        h = valeurs[metro["genre"] == "Homme"].dropna()
+        lignes.append(
+            {
+                "indicateur": VARIABLES_GENRE[col],
+                "ecart_intra_groupe": f.mean() - h.mean(),
+                "p_value": mannwhitneyu(f, h).pvalue,
+            }
+        )
+    tableau = pd.DataFrame(lignes).set_index("indicateur")
+    tableau.attrs["groupes"] = sorted(garde)
+    tableau.attrs["effectif"] = len(metro)
+    return tableau
