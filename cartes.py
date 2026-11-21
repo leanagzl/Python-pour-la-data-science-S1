@@ -49,20 +49,36 @@ def preparer_carte():
     )
 
 
-def carte_indicateur(carte, colonne, titre, cmap="viridis"):
+def carte_indicateur(carte, colonne, titre, cmap="viridis", vmax=None):
     """Carte de la France métropolitaine colorée par un indicateur."""
     metro = carte[~carte["code_circo"].str[:2].isin(["97", "98", "99"])]
     fig, ax = plt.subplots(figsize=(8, 8))
     metro.plot(
         column=colonne, cmap=cmap, legend=True, edgecolor="white",
-        linewidth=0.2, ax=ax,
+        linewidth=0.2, ax=ax, vmax=vmax,
         missing_kwds={"color": "lightgrey", "label": "Pas de données"},
     )
     ax.set_title(titre)
+    if vmax is not None:
+        ax.text(0.5, 0.97, f"Échelle plafonnée à {vmax} %",
+                transform=ax.transAxes, ha="center", fontsize=9, color="gray")
     ax.set_axis_off()
     fig.tight_layout()
     return fig
-
+    
+def carte_genre(carte):
+    """Carte de la France métropolitaine : genre du député par circonscription."""
+    metro = carte[~carte["code_circo"].str[:2].isin(["97", "98", "99"])]
+    fig, ax = plt.subplots(figsize=(8, 8))
+    metro.plot(
+        column="genre", categorical=True, legend=True, edgecolor="white",
+        linewidth=0.2, ax=ax, cmap="Set2",
+        missing_kwds={"color": "lightgrey", "label": "Pas de député"},
+    )
+    ax.set_title("Genre du député par circonscription (métropole)")
+    ax.set_axis_off()
+    fig.tight_layout()
+    return fig
 
 if __name__ == "__main__":
     deputes, insee_indic, _, _ = charger_donnees()
