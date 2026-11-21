@@ -5,6 +5,9 @@ Comparaison entre le profil des députés et celui de leur circonscription.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import mannwhitneyu, pearsonr
+
+from descriptif import taux_chomage
 
 
 def preparer_comparaison(df):
@@ -58,3 +61,43 @@ def test_correlation_age(d):
     metro = d[~d["outre_mer"]]
     r, p = pearsonr(metro["age"], metro["dec50"])
     return r, p
+VARIABLES_GENRE = {
+    "pop_pole_aav": "Part de la population dans un pôle urbain (%)",
+    "pop_rur_non_periu": "Part de la population en commune rurale non périurbaine (%)",
+    "nivvie_median_diff": "Niveau de vie médian (€)",
+    "tx_pauvrete60_diff": "Taux de pauvreté (%)",
+    "act_cad": "Part de cadres parmi les actifs (%)",
+    "act_ouv": "Part d'ouvriers parmi les actifs (%)",
+    "actdip_BAC5": "Part d'actifs diplômés bac+5 ou plus (%)",
+    "taux_chomage": "Taux de chômage (%)",
+    "dec50": "Âge médian de la population (ans)",
+}
+
+
+def comparer_genre(d):
+    """
+    Compare, en métropole, les circonscriptions des députées et des députés
+    sur plusieurs indicateurs INSEE : moyennes par genre, écart, et p-value
+    du test de Mann-Whitney (comparaison de deux groupes sans hypothèse de
+    normalité).
+    """
+    metro = d[~d["outre_mer"]].copy()
+    metro["taux_chomage"] = taux_chomage(metro)
+    femmes = metro[metro["genre"] == "Femme"]
+    hommes = metro[metro["genre"] == "Homme"]
+
+    lignes = []
+    for col, libelle in VARIABLES_GENRE.items():
+        f, h = femmes[col].dropna(), hommes[col].dropna()
+        lignes.append(
+            {
+                "indicateur": libelle,
+                "moyenne_femmes": f.mean(),
+                "moyenne_hommes": h.mean(),
+                "ecart": f.mean() - h.mean(),
+                "p_value": mannwhitneyu(f, h).pvalue,
+            }
+        )
+    tableau = pd.DataFrame(lignes).set_index("indicateur")
+    tableau.attrs["effectifs"] = (len(femmes), len(hommes))
+    return tableau
