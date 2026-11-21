@@ -65,7 +65,7 @@ def carte_indicateur(carte, colonne, titre, cmap="viridis", vmax=None):
     ax.set_axis_off()
     fig.tight_layout()
     return fig
-    
+
 def carte_genre(carte):
     """Carte de la France métropolitaine : genre du député par circonscription."""
     metro = carte[~carte["code_circo"].str[:2].isin(["97", "98", "99"])]
@@ -80,6 +80,41 @@ def carte_genre(carte):
     fig.tight_layout()
     return fig
 
+from matplotlib.patches import Patch
+
+COULEURS_GROUPES = {
+    "RN": "#1f3b73",
+    "EPR": "#f2c94c",
+    "LFI-NFP": "#c0392b",
+    "SOC": "#e75480",
+    "DR": "#4a90d9",
+    "ECOS": "#2e8b57",
+    "DEM": "#f08a24",
+    "HOR": "#8fd3f4",
+    "Autres": "#8e6bbf",
+}
+
+
+def carte_groupes(carte):
+    """Carte de la France métropolitaine : groupe politique du député."""
+    metro = carte[~carte["code_circo"].str[:2].isin(["97", "98", "99"])].copy()
+    groupe = metro["groupeAbrev"].where(
+        metro["groupeAbrev"].isin(COULEURS_GROUPES), "Autres"
+    )
+    groupe = groupe.where(metro["groupeAbrev"].notna())
+    metro["couleur"] = groupe.map(COULEURS_GROUPES).fillna("lightgrey")
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    metro.plot(color=metro["couleur"], edgecolor="white", linewidth=0.2, ax=ax)
+
+    legende = [Patch(color=c, label=g) for g, c in COULEURS_GROUPES.items()]
+    legende.append(Patch(color="lightgrey", label="Pas de député"))
+    ax.legend(handles=legende, loc="upper right", fontsize=8)
+    ax.set_title("Groupe politique du député par circonscription (métropole)")
+    ax.set_axis_off()
+    fig.tight_layout()
+    return fig
+    
 if __name__ == "__main__":
     deputes, insee_indic, _, _ = charger_donnees()
     contours = ajouter_code_circo(charger_contours())

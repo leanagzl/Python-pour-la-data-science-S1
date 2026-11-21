@@ -5,7 +5,7 @@ Comparaison entre le profil des députés et celui de leur circonscription.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import chi2_contingency, mannwhitneyu, pearsonr
+from scipy.stats import chi2_contingency, kruskal, mannwhitneyu, pearsonr, spearmanr
 
 from descriptif import taux_chomage
 
@@ -214,3 +214,29 @@ def part_cadres_par_quartile(d):
     croise = pd.crosstab(m["quartile_cadres"], m["csp_depute"] == "cad")
     res.attrs["p_value"] = chi2_contingency(croise)[1]
     return res.round(1)
+
+def profil_par_groupe(d, effectif_min=20):
+    """
+    En métropole, profil moyen des circonscriptions selon le groupe politique du
+    député (groupes d'au moins 'effectif_min' députés métropolitains). La p-value
+    est celle d'un test de Kruskal-Wallis : la part de cadres des circonscriptions
+    diffère-t-elle d'un groupe à l'autre ?
+    """
+    metro = d[~d["outre_mer"]].copy()
+    tailles = metro["groupeAbrev"].value_counts()
+    metro = metro[metro["groupeAbrev"].isin(tailles[tailles >= effectif_min].index)]
+
+    tab = metro.groupby("groupeAbrev").agg(
+        effectif=("id", "count"),
+        part_femmes=("genre", lambda s: (s == "Femme").mean() * 100),
+        part_cadres_circo=("act_cad", "mean"),
+        niveau_vie_median=("nivvie_median_diff", "mean"),
+    ).round(1).sort_values("part_cadres_circo", ascending=False)
+
+    groupes = [g["act_cad"].dropna() for _, g in metro.groupby("groupeAbrev")]
+    tab.attrs["p_kruskal"] = kruskal(*groupes).pvalue
+    return tab
+
+def correlation_groupes(tab):
+    """Corrélation de rang entre part de femmes et part de cadres, par groupe."""
+    return spearmanr(tab["part_cadres_circo"], tab["part_femmes"])
