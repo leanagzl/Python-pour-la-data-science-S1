@@ -5,7 +5,7 @@ Comparaison entre le profil des députés et celui de leur circonscription.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import mannwhitneyu, pearsonr
+from scipy.stats import chi2_contingency, mannwhitneyu, pearsonr
 
 from descriptif import taux_chomage
 
@@ -138,3 +138,79 @@ def comparer_genre_intra_groupe(d, effectif_min=20):
     tableau.attrs["groupes"] = sorted(garde)
     tableau.attrs["effectif"] = len(metro)
     return tableau
+
+CSP_LIBELLES = {
+    "agr": "Agriculteurs exploitants",
+    "art": "Artisans, commerçants, chefs d'entreprise",
+    "cad": "Cadres et prof. intellectuelles supérieures",
+    "int": "Professions intermédiaires",
+    "emp": "Employés",
+    "ouv": "Ouvriers",
+}
+
+
+def comparer_csp(deputes, insee_indic):
+    """
+    Répartition des députés par catégorie socioprofessionnelle comparée à celle
+    de la population active (variables INSEE 'act_*', moyenne pondérée par la
+    population des circonscriptions, valeurs manquantes ignorées). Seuls les
+    députés classés dans une des six catégories sont gardés ('politique',
+    'inactif' et 'non_classe' exclus).
+    """
+    classes = deputes[deputes["csp_depute"].isin(CSP_LIBELLES)]
+    part_deputes = classes["csp_depute"].value_counts(normalize=True) * 100
+
+    ind = insee_indic[insee_indic["code_circo"] != "00000"]
+    part_pop = {}
+    for c in CSP_LIBELLES:
+        valides = ind[[f"act_{c}", "pop_légal_19"]].dropna()
+        part_pop[c] = np.average(
+            valides[f"act_{c}"], weights=valides["pop_légal_19"]
+        )
+
+    tableau = pd.DataFrame(
+        {"deputes": part_deputes, "population_active": pd.Series(part_pop)}
+    ).loc[list(CSP_LIBELLES)]
+    tableau["ecart"] = tableau["deputes"] - tableau["population_active"]
+    tableau.index = [CSP_LIBELLES[c] for c in tableau.index]
+    tableau.attrs["effectif"] = len(classes)
+    return tableau.round(1)
+
+def graphique_csp(tableau):
+    """Barres horizontales : députés contre population active, par catégorie."""
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    pos = np.arange(len(tableau))
+    ax.barh(pos + 0.2, tableau["deputes"], height=0.4, label="Députés")
+    ax.barh(
+        pos - 0.2, tableau["population_active"], height=0.4,
+        label="Population active",
+    )
+    ax.set_yticks(pos)
+    ax.set_yticklabels(tableau.index)
+    ax.invert_yaxis()
+    ax.set_xlabel("Part (%)")
+    ax.set_title("Catégorie socioprofessionnelle : députés et population active")
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
+def part_cadres_par_quartile(d):
+    """
+    En métropole, part de députés cadres selon le quartile de la circonscription
+    en part de cadres parmi les actifs. La p-value est celle d'un test du chi2
+    d'indépendance entre quartile et appartenance au groupe des cadres.
+    """
+    m = d[(~d["outre_mer"]) & d["csp_depute"].isin(CSP_LIBELLES)].copy()
+    m["quartile_cadres"] = pd.qcut(
+        m["act_cad"], 4,
+        labels=["Q1 (moins de cadres)", "Q2", "Q3", "Q4 (plus de cadres)"],
+    )
+    res = m.groupby("quartile_cadres", observed=True).agg(
+        effectif=("id", "count"),
+        part_deputes_cadres=("csp_depute", lambda s: (s == "cad").mean() * 100),
+        part_cadres_circo=("act_cad", "mean"),
+    )
+    croise = pd.crosstab(m["quartile_cadres"], m["csp_depute"] == "cad")
+    res.attrs["p_value"] = chi2_contingency(croise)[1]
+    return res.round(1)
