@@ -27,6 +27,7 @@ pip install -r requirements.txt
 ```bash
 python lancer_extraction.py   # télécharge et nettoie les données (dossier data/)
 python jointures.py           # joint députés et indicateurs INSEE
+python cartes.py              # produit carte_cadres.png
 ```
 
 Le rapport est dans `rapport.ipynb`.
@@ -41,9 +42,11 @@ Le rapport est dans `rapport.ipynb`.
 | `descriptif.py` | Statistiques descriptives et graphiques |
 | `rapport.ipynb` | Rapport |
 | `exploration.py` | Contrôle de la clé de jointure |
-
+| `collecte_contours.py` | Téléchargement et chargement des contours des circonscriptions |
+| `cartes.py` | Cartes par circonscription (jointure contours - députés - INSEE) |
 ## Choix de nettoyage importants
 
 - Corse : codes `2A`/`2B` en majuscules.
 - Saint-Barthélemy (`97701`) rattachée à Saint-Martin (`97801`), comme dans les données INSEE.
 - Les 11 circonscriptions des Français de l'étranger n'ont pas d'indicateurs INSEE.
+- Contours : l'outre-mer est codé `ZA`, `ZB`... dans le fichier de contours, traduit en `971`, `972`... pour correspondre à `code_circo`. Sept circonscriptions (Saint-Martin/Saint-Barthélemy, Wallis-et-Futuna, Polynésie, Nouvelle-Calédonie) n'ont pas de contour dans ce fichier et sont absentes des cartes.
