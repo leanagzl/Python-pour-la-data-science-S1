@@ -39,6 +39,7 @@ def ajouter_code_circo(contours):
 
 def preparer_carte():
     """Contours joints aux députés et aux indicateurs INSEE."""
+    gel_contours()
     deputes, insee_indic, _, _ = charger_donnees()
     df = joindre_deputes_insee(preparer_deputes(deputes), insee_indic)
     contours = ajouter_code_circo(charger_contours())
