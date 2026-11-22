@@ -234,7 +234,12 @@ def profil_par_groupe(d, effectif_min=20):
     ).round(1).sort_values("part_cadres_circo", ascending=False)
 
     groupes = [g["act_cad"].dropna() for _, g in metro.groupby("groupeAbrev")]
-    tab.attrs["p_kruskal"] = kruskal(*groupes).pvalue
+    resultat = kruskal(*groupes)
+    n = sum(len(g) for g in groupes)
+    tab.attrs["p_kruskal"] = resultat.pvalue
+    tab.attrs["h_kruskal"] = resultat.statistic
+    tab.attrs["n_kruskal"] = n
+    tab.attrs["epsilon2_kruskal"] = resultat.statistic / (n - 1)
     return tab
 
 def correlation_groupes(tab):
