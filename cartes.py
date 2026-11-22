@@ -10,6 +10,7 @@ from collecte_contours import charger_contours, gel_contours
 from descriptif import preparer_deputes
 from extraction_donnees import charger_donnees
 from jointures import joindre_deputes_insee
+from professions import ajouter_categorie_job
 
 
 PREFIXES_OUTRE_MER = {
@@ -42,6 +43,15 @@ COULEURS_GROUPES = {
     "Autres": "#8e6bbf",
 }
 
+CSP_DEPUTES = {
+    "cad": ("Cadres et prof. intell. sup.", "#1f78b4"),
+    "int": ("Professions intermédiaires", "#33a02c"),
+    "art": ("Artisans, commerçants, chefs d'ent.", "#ff7f00"),
+    "emp": ("Employés", "#e31a1c"),
+    "ouv": ("Ouvriers", "#6a3d9a"),
+    "agr": ("Agriculteurs exploitants", "#b15928"),
+    "autres": ("Autres / inactifs / politique", "#a6cee3"),
+}
 
 def ajouter_code_circo(contours):
     """
@@ -64,10 +74,17 @@ def preparer_carte():
     """Contours joints aux députés et aux indicateurs INSEE."""
     gel_contours()
     deputes, insee_indic, _, _ = charger_donnees()
+    insee_indic = insee_indic.copy()
+    insee_indic["part_femmes"] = (
+        (insee_indic["actemp_hom"] - insee_indic["actemp"])
+        / (insee_indic["actemp_hom"] - insee_indic["actemp_fem"])
+        * 100
+    )
+    deputes = ajouter_categorie_job(preparer_deputes(deputes))
     df = joindre_deputes_insee(preparer_deputes(deputes), insee_indic)
     contours = ajouter_code_circo(charger_contours())
-    colonnes = ["code_circo", "genre", "groupeAbrev", "age",
-                "act_cad", "nivvie_median_diff", "dec50"]
+    colonnes = ["code_circo", "genre", "groupeAbrev", "age", "csp_depute",
+                "act_cad", "nivvie_median_diff", "dec50", "part_femmes"]
     return contours.merge(
         df[colonnes], on="code_circo", how="left", validate="one_to_one"
     )
@@ -157,6 +174,32 @@ def carte_genre(carte):
     ))
     return fig
 
+def carte_csp(carte):
+    """Carte par circonscription : catégorie socioprofessionnelle du député."""
+    carte = carte.copy()
+    code_csp = carte["csp_depute"].where(
+        carte["csp_depute"].isin(["cad", "int", "art", "emp", "ouv", "agr"]),
+        "autres",
+    )
+    code_csp = code_csp.where(carte["csp_depute"].notna())
+    couleurs = {k: c for k, (_, c) in CSP_DEPUTES.items()}
+    carte["couleur"] = code_csp.map(couleurs).fillna("lightgrey")
+
+    metro = carte[~carte["code_circo"].str[:2].isin(["97", "98", "99"])]
+    fig, ax = plt.subplots(figsize=(10, 8.5))
+    metro.plot(color=metro["couleur"], edgecolor="white", linewidth=0.2, ax=ax)
+
+    legende = [Patch(color=c, label=lbl) for lbl, c in CSP_DEPUTES.values()]
+    legende.append(Patch(color="lightgrey", label="Pas de député"))
+    ax.legend(handles=legende, bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
+    fig.suptitle("Catégorie socioprofessionnelle du député par circonscription", fontsize=13, y=0.97)
+    ax.set_axis_off()
+
+    ajouter_encarts(fig, ax, carte, lambda df, a: df.plot(
+        color=df["couleur"], edgecolor="white", linewidth=0.2, ax=a
+    ))
+    return fig
+
 
 def carte_groupes(carte):
     """Carte de la France métropolitaine : groupe politique du député."""
@@ -201,6 +244,11 @@ if __name__ == "__main__":
     for nom, fig in [
         ("carte_cadres.png", carte_indicateur(
             carte, "act_cad", "Part de cadres parmi les actifs (%), par circonscription"
+        )),
+        ("carte_csp_deputes.png", carte_csp(carte)),
+        ("carte_part_femmes.png", carte_indicateur(
+            carte, "part_femmes", "Part de femmes dans la population (%), par circonscription",
+            cmap="Purples"
         )),
         ("carte_genre.png", carte_genre(carte)),
         ("carte_groupes.png", carte_groupes(carte)),

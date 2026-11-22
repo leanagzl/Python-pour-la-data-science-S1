@@ -2,7 +2,7 @@
 
 Projet réalisé par Leana Ghezali et Selima Skhiri
 
-**Problématique :** Les députés représentent-ils bien leurs circonscriptions ? Nous comparons l'âge, le genre, la profession et le groupe politique de chaque député aux caractéristiques socio-économiques de sa circonscription.
+**Problématique :** Les députés sont-ils représentatifs de leurs électeurs ? Nous comparons l'âge, le genre, la profession et le groupe politique de chaque député aux caractéristiques socio-économiques de sa circonscription.
 
 ## Données
 
@@ -17,22 +17,19 @@ Les clés de jointure entre députés, INSEE et contours sont harmonisées dans 
 
 ## Installation
 
-```bash
-git clone https://github.com/leanagzl/Python-pour-la-data-science-S1.git
-cd Python-pour-la-data-science-S1
-pip install -r requirements.txt
-```
+    git clone https://github.com/leanagzl/Python-pour-la-data-science-S1.git
+    cd Python-pour-la-data-science-S1
+    pip install -r requirements.txt
 
 ## Reproduire les résultats
 
 À exécuter dans cet ordre, depuis la racine du dépôt :
 
-```bash
-python lancer_extraction.py   # télécharge et nettoie les données (dossier data/)
-python jointures.py           # joint députés et indicateurs INSEE
-python cartes.py              # télécharge les contours si besoin, vérifie les clés,
-                              # produit carte_cadres.png, carte_genre.png, carte_groupes.png
-```
+    python lancer_extraction.py   # télécharge et nettoie les données (dossier data/)
+    python jointures.py           # joint députés et indicateurs INSEE
+    python cartes.py              # télécharge les contours si besoin, vérifie les clés,
+                                  # produit carte_cadres.png, carte_csp_deputes.png,
+                                  # carte_part_femmes.png, carte_genre.png, carte_groupes.png
 
 Le rapport est dans `rapport.ipynb` (menu *Kernel > Restart & Run All* pour le rejouer de bout en bout). Les modules `descriptif.py`, `professions.py` et `representativite.py` fournissent les fonctions d'analyse et ne se lancent pas seuls : ils supposent que les tables nettoyées produites par les trois commandes ci-dessus existent.
 
@@ -49,7 +46,7 @@ Le rapport est dans `rapport.ipynb` (menu *Kernel > Restart & Run All* pour le r
 | `rapport.ipynb` | Rapport |
 | `exploration.py` | Contrôle de la clé de jointure |
 | `collecte_contours.py` | Téléchargement des contours des circonscriptions (gelés dans `data/data_brut/contours_circonscriptions.geojson`, pas de nouveau téléchargement s'il existe) et chargement en GeoDataFrame |
-| `cartes.py` | Construit `code_circo` pour les contours, les joint aux députés et aux indicateurs INSEE, puis dessine trois cartes (part de cadres, genre du député, groupe du député) avec des encarts pour Paris et la petite couronne et pour l'outre-mer |
+| `cartes.py` | Construit `code_circo` pour les contours, les joint aux députés et aux indicateurs INSEE, puis dessine cinq cartes (part de cadres, CSP des députés, part de femmes dans la population, genre du député, groupe du député) avec des encarts pour Paris et la petite couronne et pour l'outre-mer |
 | `requirements.txt` | Dépendances Python |
 
 ## Choix de nettoyage importants
@@ -57,6 +54,7 @@ Le rapport est dans `rapport.ipynb` (menu *Kernel > Restart & Run All* pour le r
 - Corse : codes `2A`/`2B` en majuscules.
 - Saint-Barthélemy (`97701`) rattachée à Saint-Martin (`97801`), comme dans les données INSEE.
 - Les 11 circonscriptions des Français de l'étranger n'ont pas d'indicateurs INSEE.
+- Indicateurs dérivés (INSEE) : la table INSEE ne fournissant pas directement la part totale de femmes par circonscription, celle-ci est reconstruite par barycentre à partir des taux d'emploi global, masculin et féminin : $(actemp_{hom} - actemp) / (actemp_{hom} - actemp_{fem}) \times 100$.
 
 ### Nettoyage des données géographiques (contours)
 
