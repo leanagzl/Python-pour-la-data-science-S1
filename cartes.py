@@ -5,7 +5,7 @@ députés + indicateurs INSEE.
 
 import matplotlib.pyplot as plt
 
-from collecte_contours import charger_contours
+from collecte_contours import charger_contours, gel_contours
 from descriptif import preparer_deputes
 from extraction_donnees import charger_donnees
 from jointures import joindre_deputes_insee
