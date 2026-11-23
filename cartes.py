@@ -62,7 +62,7 @@ SOURCE_CARTES = (
 def ajouter_source(fig):
     """Ajoute la mention des sources en bas à droite de la figure."""
     fig.text(0.99, 0.005, SOURCE_CARTES, ha="right", va="bottom",
-             fontsize=7, color="gray")
+         fontsize=9, color="dimgray")
 
 
 def ajouter_code_circo(contours):
