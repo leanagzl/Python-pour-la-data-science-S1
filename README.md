@@ -44,6 +44,8 @@ Le rapport est dans `rapport.ipynb`.
 | `exploration.py` | Contrôle de la clé de jointure |
 | `collecte_contours.py` | Téléchargement et chargement des contours des circonscriptions |
 | `cartes.py` | Cartes par circonscription (jointure contours - députés - INSEE) |
+| `representativite.py` | Comparaison profil des députés / profil des circonscriptions |
+| `professions.py` | Recodage de la profession déclarée des députés |
 ## Choix de nettoyage importants
 
 - Corse : codes `2A`/`2B` en majuscules.

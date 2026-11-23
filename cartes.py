@@ -1,6 +1,6 @@
 """
 Cartes par circonscription : jointure des contours avec la table
-députés + indicateurs INSEE.
+députés + indicateurs INSEE
 """
 
 import matplotlib.pyplot as plt
@@ -38,7 +38,7 @@ def ajouter_code_circo(contours):
     return g
 
 def preparer_carte():
-    """Contours joints aux députés et aux indicateurs INSEE."""
+    """Contours joints aux députés et aux indicateurs INSEE"""
     deputes, insee_indic, _, _ = charger_donnees()
     df = joindre_deputes_insee(preparer_deputes(deputes), insee_indic)
     contours = ajouter_code_circo(charger_contours())
@@ -114,7 +114,7 @@ def carte_groupes(carte):
     ax.set_axis_off()
     fig.tight_layout()
     return fig
-    
+
 if __name__ == "__main__":
     deputes, insee_indic, _, _ = charger_donnees()
     contours = ajouter_code_circo(charger_contours())
