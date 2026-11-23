@@ -53,6 +53,18 @@ CSP_DEPUTES = {
     "autres": ("Autres / inactifs / politique", "#a6cee3"),
 }
 
+SOURCE_CARTES = (
+    "Sources : Assemblée nationale / Datan (députés), INSEE (indicateurs), "
+    "data.gouv.fr (contours)"
+)
+
+
+def ajouter_source(fig):
+    """Ajoute la mention des sources en bas à droite de la figure."""
+    fig.text(0.99, 0.005, SOURCE_CARTES, ha="right", va="bottom",
+         fontsize=9, color="dimgray")
+
+
 def ajouter_code_circo(contours):
     """
     Construit 'code_circo' au format INSEE à partir des contours :
@@ -138,7 +150,7 @@ def carte_indicateur(carte, colonne, titre, cmap="viridis", vmax=None, unite="%"
     metro.plot(
         column=colonne, cmap=cmap, legend=True, edgecolor="white",
         linewidth=0.2, ax=ax, vmin=vmin, vmax=vmax_eff,
-        legend_kwds={"label": unite} if unite else {},
+        legend_kwds={"label": titre} if titre else {},
         missing_kwds={"color": "lightgrey", "label": "Pas de données"},
     )
     fig.suptitle(titre, fontsize=13, y=0.97)
@@ -152,6 +164,7 @@ def carte_indicateur(carte, colonne, titre, cmap="viridis", vmax=None, unite="%"
         edgecolor="white", linewidth=0.2, ax=a,
         missing_kwds={"color": "lightgrey"},
     ))
+    ajouter_source(fig)
     return fig
 
 
@@ -161,6 +174,7 @@ def carte_genre(carte):
     fig, ax = plt.subplots(figsize=(10, 8.5))
     metro.plot(
         column="genre", categorical=True, legend=True, edgecolor="white",
+        legend_kwds={"title": "Genre du député", "loc": "lower right"},
         linewidth=0.2, ax=ax, cmap="Set2",
         missing_kwds={"color": "lightgrey", "label": "Pas de député"},
     )
@@ -172,6 +186,7 @@ def carte_genre(carte):
         edgecolor="white", linewidth=0.2, ax=a,
         missing_kwds={"color": "lightgrey"},
     ))
+    ajouter_source(fig)
     return fig
 
 def carte_csp(carte):
@@ -191,13 +206,15 @@ def carte_csp(carte):
 
     legende = [Patch(color=c, label=lbl) for lbl, c in CSP_DEPUTES.values()]
     legende.append(Patch(color="lightgrey", label="Pas de député"))
-    ax.legend(handles=legende, bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
+    ax.legend(handles=legende, bbox_to_anchor=(1.02, 1), loc="upper left",
+    fontsize=8, title="Catégorie socioprofessionnelle\ndu député")
     fig.suptitle("Catégorie socioprofessionnelle du député par circonscription", fontsize=13, y=0.97)
     ax.set_axis_off()
 
     ajouter_encarts(fig, ax, carte, lambda df, a: df.plot(
         color=df["couleur"], edgecolor="white", linewidth=0.2, ax=a
     ))
+    ajouter_source(fig)
     return fig
 
 
@@ -216,13 +233,15 @@ def carte_groupes(carte):
 
     legende = [Patch(color=c, label=g) for g, c in COULEURS_GROUPES.items()]
     legende.append(Patch(color="lightgrey", label="Pas de député"))
-    ax.legend(handles=legende, bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
+    ax.legend(handles=legende, bbox_to_anchor=(1.02, 1), loc="upper left",
+    fontsize=8, title="Groupe politique")
     fig.suptitle("Groupe politique du député par circonscription", fontsize=13, y=0.97)
     ax.set_axis_off()
 
     ajouter_encarts(fig, ax, carte, lambda df, a: df.plot(
         color=df["couleur"], edgecolor="white", linewidth=0.2, ax=a
     ))
+    ajouter_source(fig)
     return fig
 
 if __name__ == "__main__":
