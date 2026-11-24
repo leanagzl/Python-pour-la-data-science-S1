@@ -6,3 +6,5 @@ matplotlib
 ipykernel
 scipy
 geopandas
+numpy
+statsmodels
