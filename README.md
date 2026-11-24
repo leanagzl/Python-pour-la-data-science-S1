@@ -1,6 +1,6 @@
-# Python pour la data science : députés et circonscriptions
+# Les député.es ressemblent-ils à leurs électeurs ? 
 
-Projet réalisé par Léana Ghezali et Selima Skhiri
+Projet pour le cours 'Python pour la data science" réalisé par Léana Ghezali et Selima Skhiri - 2026
 
 **Problématique :** Les député.es sont-ils représentatifs de leurs électeurs ? Nous comparons l'âge, le genre, la profession de chaque député.e aux caractéristiques socio-économiques de sa circonscription.
 
