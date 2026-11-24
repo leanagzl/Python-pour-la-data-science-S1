@@ -1,4 +1,4 @@
-# Les député.es ressemblent-ils à leurs électeurs ? 
+# Les député.es sont-ils à l'image de leurs électeurs ? 
 
 Projet pour le cours 'Python pour la data science" réalisé par Léana Ghezali et Selima Skhiri - 2026
 
