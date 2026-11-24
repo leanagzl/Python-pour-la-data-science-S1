@@ -6,7 +6,7 @@ Récupération des contours géographiques des circonscriptions législatives
 import geopandas as gpd
 import requests
 
-from src.collecte.extraction_donnees import DATA_DIR, HEADERS
+from sources.collecte.extraction_donnees import DATA_DIR, HEADERS
 
 URL_CONTOURS = (
     "https://www.data.gouv.fr/api/1/datasets/r/8b681b69-739c-47eb-a96b-06e8e2d8dc08"

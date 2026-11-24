@@ -31,13 +31,13 @@ Exécuter les étapes dans l'ordre :
 
 ```bash
 # 1. Téléchargement et nettoyage des données
-python -m src.collecte.lancer_extraction
+python -m sources.collecte.lancer_extraction
 
 # 2. Jointure entre les données des députés et les indicateurs INSEE
-python -m src.traitement.jointures
+python -m sources.traitement.jointures
 
 # 3. Vérification des contours et génération des cinq cartes
-python -m src.visualisation.cartes
+python -m sources.visualisation.cartes
 ```
 
 Les cartes générées sont enregistrées dans `outputs/cartes/` :
@@ -48,7 +48,7 @@ Les cartes générées sont enregistrées dans `outputs/cartes/` :
 - `carte_genre.png`
 - `carte_groupes.png`
 
-Le rapport principal est disponible dans `rapport.ipynb`. Pour le rejouer de bout en bout, ouvrir le notebook puis sélectionner *Kernel > Restart & Run All*.
+Le rapport principal est disponible dans `main.ipynb`. Pour le rejouer de bout en bout, ouvrir le notebook puis sélectionner *Kernel > Restart & Run All*.
 
 Les modules `descriptif.py`, `professions.py` et `representativite.py` fournissent les fonctions utilisées pour les analyses. Ils sont importés dans le notebook et ne se lancent pas seuls.
 
@@ -61,7 +61,7 @@ Python-pour-la-data-science-S1/
 │   ├── data_brut/             # Données sources téléchargées
 │   └── data_clean/            # Données nettoyées et générées
 │
-├── src/
+├── sources/
 │   ├── collecte/
 │   │   ├── extraction_donnees.py
 │   │   ├── lancer_extraction.py
@@ -84,7 +84,7 @@ Python-pour-la-data-science-S1/
 ├── outputs/
 │   └── cartes/                # Cartes générées
 │
-├── rapport.ipynb
+├── main.ipynb
 ├── README.md
 ├── requirements.txt
 └── .gitignore
@@ -94,16 +94,16 @@ Python-pour-la-data-science-S1/
 
 | Module | Rôle |
 |---|---|
-| `src/collecte/extraction_donnees.py` | Téléchargement, gel et nettoyage des données |
-| `src/collecte/lancer_extraction.py` | Enchaîne les différentes étapes d'extraction |
-| `src/collecte/collecte_contours.py` | Téléchargement et chargement des contours des circonscriptions |
-| `src/traitement/jointures.py` | Jointure entre les données des députés et les indicateurs INSEE |
-| `src/traitement/professions.py` | Recode les professions déclarées en catégories socioprofessionnelles |
-| `src/analyse/descriptif.py` | Statistiques descriptives et graphiques |
-| `src/analyse/representativite.py` | Analyses des écarts de représentativité entre députés et population |
-| `src/visualisation/cartes.py` | Préparation des données géographiques et génération des cinq cartes |
+| `sources/collecte/extraction_donnees.py` | Téléchargement, gel et nettoyage des données |
+| `sources/collecte/lancer_extraction.py` | Enchaîne les différentes étapes d'extraction |
+| `sources/collecte/collecte_contours.py` | Téléchargement et chargement des contours des circonscriptions |
+| `sources/traitement/jointures.py` | Jointure entre les données des députés et les indicateurs INSEE |
+| `sources/traitement/professions.py` | Recode les professions déclarées en catégories socioprofessionnelles |
+| `sources/analyse/descriptif.py` | Statistiques descriptives et graphiques |
+| `sources/analyse/representativite.py` | Analyses des écarts de représentativité entre députés et population |
+| `sources/visualisation/cartes.py` | Préparation des données géographiques et génération des cinq cartes |
 | `tests/exploration.py` | Contrôle de la clé de jointure |
-| `rapport.ipynb` | Rapport et analyses principales |
+| `main.ipynb` | Rapport et analyses principales |
 | `outputs/cartes/` | Images des cartes générées |
 | `requirements.txt` | Dépendances Python du projet |
 
@@ -153,6 +153,6 @@ Le fichier de contours ne suit pas le même codage que les données INSEE et Dat
 
 - **Sept circonscriptions sans contour :** Saint-Martin/Saint-Barthélemy (1), Wallis-et-Futuna (1), Polynésie française (3) et Nouvelle-Calédonie (2), soit les départements `977`/`978`, `986`, `987` et `988`. Elles ne figurent pas dans le fichier de contours et sont absentes des cartes, sans qu'on ait cherché à les approximer. Les 11 circonscriptions des Français de l'étranger ne sont pas non plus cartographiées.
 
-- **Contrôles :** l'exécution de `python -m src.visualisation.cartes` affiche les doublons de clé dans les contours, les contours sans INSEE et les circonscriptions INSEE sans contour. La jointure contours - table députés + INSEE est faite avec `validate="one_to_one"`, ce qui arrête le programme en cas de doublon.
+- **Contrôles :** l'exécution de `python -m sources.visualisation.cartes` affiche les doublons de clé dans les contours, les contours sans INSEE et les circonscriptions INSEE sans contour. La jointure contours - table députés + INSEE est faite avec `validate="one_to_one"`, ce qui arrête le programme en cas de doublon.
 
 - **Projections et encarts :** la métropole est tracée en Lambert-93 (EPSG:2154) et chaque territoire d'outre-mer dans sa projection UTM locale. Un encart agrandit Paris et la petite couronne (départements 75, 92, 93, 94), repérés par un cadre rouge sur la carte principale, et chaque territoire d'outre-mer présent dans les contours a son encart. L'échelle de couleurs et la légende sont communes à tous les panneaux, mais pas l'échelle géographique. Les circonscriptions sans donnée sont en gris clair.

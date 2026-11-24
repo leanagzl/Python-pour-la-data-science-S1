@@ -1,4 +1,4 @@
-from src.collecte.extraction_donnees import charger_donnees
+from sources.collecte.extraction_donnees import charger_donnees
 
 deputes, insee_indic, insee_compo, dico_insee = charger_donnees()
 

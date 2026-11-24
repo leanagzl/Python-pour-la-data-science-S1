@@ -8,11 +8,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch, Rectangle
 
-from src.collecte.collecte_contours import charger_contours, gel_contours
-from src.analyse.descriptif import preparer_deputes
-from src.collecte.extraction_donnees import charger_donnees
-from src.traitement.jointures import joindre_deputes_insee
-from src.traitement.professions import ajouter_categorie_job
+from sources.collecte.collecte_contours import charger_contours, gel_contours
+from sources.analyse.descriptif import preparer_deputes
+from sources.collecte.extraction_donnees import charger_donnees
+from sources.traitement.jointures import joindre_deputes_insee
+from sources.traitement.professions import ajouter_categorie_job
 
 
 PREFIXES_OUTRE_MER = {

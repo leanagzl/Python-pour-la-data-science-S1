@@ -2,7 +2,7 @@
 Jointure entre les députés actifs et les indicateurs INSEE par circonscription.
 """
 
-from src.collecte.extraction_donnees import charger_donnees, DATA_DIR
+from sources.collecte.extraction_donnees import charger_donnees, DATA_DIR
 
 
 def joindre_deputes_insee(deputes, insee_indic):

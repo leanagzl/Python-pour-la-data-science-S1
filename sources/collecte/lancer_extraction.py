@@ -1,4 +1,4 @@
-from src.collecte.extraction_donnees import (
+from sources.collecte.extraction_donnees import (
     gel_donnees_insee,
     gel_donnees_deputes,
     gel_bases_clean,
