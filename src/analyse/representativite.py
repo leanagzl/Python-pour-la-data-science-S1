@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import chi2_contingency, kruskal, mannwhitneyu, pearsonr, spearmanr
 
-from descriptif import taux_chomage
+from src.analyse.descriptif import taux_chomage
 
 
 def preparer_comparaison(df):

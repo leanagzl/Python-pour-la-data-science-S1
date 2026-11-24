@@ -7,7 +7,7 @@ import requests
 import pandas as pd
 
 # Chemins et URLs des sources
-DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
 URL_INSEE_INDIC = (
     "https://www.insee.fr/fr/statistiques/fichier/6436476/"

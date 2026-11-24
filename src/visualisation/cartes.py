@@ -3,14 +3,16 @@ Cartes par circonscription : jointure des contours avec la table
 députés + indicateurs INSEE
 """
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch, Rectangle
 
-from collecte_contours import charger_contours, gel_contours
-from descriptif import preparer_deputes
-from extraction_donnees import charger_donnees
-from jointures import joindre_deputes_insee
-from professions import ajouter_categorie_job
+from src.collecte.collecte_contours import charger_contours, gel_contours
+from src.analyse.descriptif import preparer_deputes
+from src.collecte.extraction_donnees import charger_donnees
+from src.traitement.jointures import joindre_deputes_insee
+from src.traitement.professions import ajouter_categorie_job
 
 
 PREFIXES_OUTRE_MER = {
@@ -259,6 +261,9 @@ if __name__ == "__main__":
     carte = preparer_carte()
     print("Circonscriptions avec indicateur :", int(carte["act_cad"].notna().sum()))
 
+    dossier_sortie = Path(__file__).resolve().parents[2] / "outputs" / "cartes"
+    dossier_sortie.mkdir(parents=True, exist_ok=True)
+
     for nom, fig in [
         ("carte_cadres.png", carte_indicateur(
             carte, "act_cad", "Part de cadres parmi les actifs (%), par circonscription"
@@ -271,6 +276,6 @@ if __name__ == "__main__":
         ("carte_genre.png", carte_genre(carte)),
         ("carte_groupes.png", carte_groupes(carte)),
     ]:
-        fig.savefig(nom, dpi=200, bbox_inches="tight")
+        fig.savefig(dossier_sortie / nom, dpi=200, bbox_inches="tight")
         plt.close(fig)
         print("Carte enregistrée :", nom)
